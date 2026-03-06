@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>VidyaGuide AI Agent</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#1f2a44,#3b6ef5);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+margin:0;
+}
+
+.container{
+background:white;
+padding:30px;
+width:600px;
+border-radius:12px;
+box-shadow:0 15px 40px rgba(0,0,0,0.3);
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#3b6ef5;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+}
+
+.result{
+margin-top:20px;
+background:#f6f7fb;
+padding:15px;
+border-radius:8px;
+}
+
+.bar{
+height:20px;
+background:#ddd;
+border-radius:10px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.bar-fill{
+height:100%;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>VidyaGuide AI Agent</h2>
+
+<form id="resumeForm">
+
+<input type="text" name="name" placeholder="Your Name" required>
+
+<input type="file" name="file" required>
+
+<input type="text" name="company" placeholder="Company Name" required>
+
+<input type="text" name="role" placeholder="Job Role" required>
+
+<button type="submit">Analyze Resume</button>
+
+</form>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<script>
+
+document.getElementById("resumeForm").onsubmit = async function(e){
+
+e.preventDefault()
+
+let formData=new FormData(this)
+
+let result=document.getElementById("result")
+
+result.innerHTML="Analyzing your resume..."
+
+let response=await fetch("http://127.0.0.1:8000/analyze",{
+method:"POST",
+body:formData
+})
+
+let data=await response.json()
+
+let score=data["ATS Score"]
+
+let color="green"
+
+if(score<=35){
+color="red"
+}
+else if(score<=69){
+color="orange"
+}
+
+let message=""
+
+if(score>=70){
+message="Great news! Your resume strongly matches the requirements for this role."
+}
+else{
+message="Your resume partially matches the role requirements. Improving the suggested skills can increase your chances."
+}
+
+result.innerHTML=`
+
+<h3>Dear ${data["Name"]}, your resume has been successfully analysed. Here are the results:</h3>
+
+<h3>Position Evaluated: ${data["Role"]}</h3>
+<h4>Target Company: ${data["Company"]}</h4>
+
+<h3>Your Readiness Score</h3>
+
+<h2 style="color:${color}">${score}%</h2>
+
+<div class="bar">
+<div class="bar-fill" style="width:${score}%;background:${color}"></div>
+</div>
+
+<p><b>Job Match Result:</b> ${message}</p>
+
+<p><b>You are strong in the following skills:</b><br>
+${data["Strengths"].join(", ")}
+</p>
+
+<p><b>To improve your chances for the ${data["Role"]} role at ${data["Company"]}, consider improving the following skills:</b><br>
+${data["Missing Skills"].join(", ")}
+</p>
+
+<h4>Suggested Job Roles Based on Your Resume</h4>
+
+<ul>
+${data["Role Suggestions"].map(r=>`<li>${r}</li>`).join("")}
+</ul>
+
+<h4>Recommended Interview Questions</h4>
+
+<ul>
+${data["Interview Questions"].map(q=>`<li>${q}</li>`).join("")}
+</ul>
+
+<h4>Resume Improvement Suggestions</h4>
+
+<ul>
+${data["Suggestions"].map(s=>`<li>${s}</li>`).join("")}
+</ul>
+
+`
+
+}
+
+</script>
+
+</body>
+</html>
