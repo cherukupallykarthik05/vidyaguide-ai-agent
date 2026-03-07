@@ -1,27 +1,40 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 <title>VidyaGuide AI Agent</title>
 
 <style>
 
 body{
-font-family:Arial;
-background:linear-gradient(135deg,#1f2a44,#3b6ef5);
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
+font-family: "Segoe UI", Arial;
+background:#f4f6fa;
+margin:0;
+padding:0;
+}
+
+.header{
+background:#1f3c88;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+.header h1{
 margin:0;
 }
 
 .container{
+width:900px;
+margin:auto;
+margin-top:30px;
+}
+
+.form-box{
 background:white;
-padding:30px;
-width:600px;
-border-radius:12px;
-box-shadow:0 15px 40px rgba(0,0,0,0.3);
+padding:20px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
+margin-bottom:25px;
 }
 
 input{
@@ -35,22 +48,38 @@ border:1px solid #ccc;
 button{
 width:100%;
 padding:12px;
-background:#3b6ef5;
+background:#3b82f6;
 color:white;
 border:none;
 border-radius:6px;
 font-size:16px;
+cursor:pointer;
 }
 
-.result{
-margin-top:20px;
-background:#f6f7fb;
-padding:15px;
-border-radius:8px;
+button:hover{
+background:#2563eb;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+.card h3{
+margin-top:0;
+color:#1f3c88;
 }
 
 .bar{
-height:20px;
+height:18px;
 background:#ddd;
 border-radius:10px;
 overflow:hidden;
@@ -61,14 +90,29 @@ margin-top:10px;
 height:100%;
 }
 
+.footer{
+text-align:center;
+margin-top:40px;
+color:#777;
+}
+
+ul{
+padding-left:20px;
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="header">
+<h1>VidyaGuide AI Agent</h1>
+<p>AI-Powered Resume Intelligence Platform</p>
+</div>
+
 <div class="container">
 
-<h2>VidyaGuide AI Agent</h2>
+<div class="form-box">
 
 <form id="resumeForm">
 
@@ -76,7 +120,7 @@ height:100%;
 
 <input type="file" name="file" required>
 
-<input type="text" name="company" placeholder="Company Name" required>
+<input type="text" name="company" placeholder="Target Company" required>
 
 <input type="text" name="role" placeholder="Job Role" required>
 
@@ -84,8 +128,14 @@ height:100%;
 
 </form>
 
-<div id="result" class="result"></div>
+</div>
 
+<div id="result"></div>
+
+</div>
+
+<div class="footer">
+<p>© 2026 VidyaGuide AI Agent | Built by Cherukupally Karthik</p>
 </div>
 
 <script>
@@ -121,54 +171,70 @@ color="orange"
 let message=""
 
 if(score>=70){
-message="Great news! Your resume strongly matches the requirements for this role."
+message="Your resume strongly matches the job requirements."
 }
 else{
-message="Your resume partially matches the role requirements. Improving the suggested skills can increase your chances."
+message="Your resume partially matches the role requirements. Improving the suggested skills will increase your chances."
 }
 
 result.innerHTML=`
 
-<h3>Dear ${data["Name"]}, your resume has been successfully analysed. Here are the results:</h3>
+<div class="grid">
 
-<h3>Position Evaluated: ${data["Role"]}</h3>
-<h4>Target Company: ${data["Company"]}</h4>
+<div class="card">
+<h3>Candidate Information</h3>
+<p><b>Name:</b> ${data["Name"]}</p>
+<p><b>Position Evaluated:</b> ${data["Role"]}</p>
+<p><b>Target Company:</b> ${data["Company"]}</p>
+</div>
 
-<h3>Your Readiness Score</h3>
-
+<div class="card">
+<h3>ATS Readiness Score</h3>
 <h2 style="color:${color}">${score}%</h2>
 
 <div class="bar">
-<div class="bar-fill" style="width:${score}%;background:${color}"></div>
+<div class="bar-fill" style="width:${score}%; background:${color}"></div>
 </div>
 
-<p><b>Job Match Result:</b> ${message}</p>
+<p>${message}</p>
+</div>
 
-<p><b>You are strong in the following skills:</b><br>
-${data["Strengths"].join(", ")}
-</p>
+<div class="card">
+<h3>✔ Strength Skills</h3>
+<ul>
+${data["Strengths"].map(s=>`<li>${s}</li>`).join("")}
+</ul>
+</div>
 
-<p><b>To improve your chances for the ${data["Role"]} role at ${data["Company"]}, consider improving the following skills:</b><br>
-${data["Missing Skills"].join(", ")}
-</p>
+<div class="card">
+<h3>⚠ Skills To Improve</h3>
+<ul>
+${data["Missing Skills"].map(s=>`<li>${s}</li>`).join("")}
+</ul>
+</div>
 
-<h4>Suggested Job Roles Based on Your Resume</h4>
-
+<div class="card">
+<h3>💼 Suggested Job Roles</h3>
 <ul>
 ${data["Role Suggestions"].map(r=>`<li>${r}</li>`).join("")}
 </ul>
+</div>
 
-<h4>Recommended Interview Questions</h4>
-
+<div class="card">
+<h3>🎯 Interview Questions</h3>
 <ul>
 ${data["Interview Questions"].map(q=>`<li>${q}</li>`).join("")}
 </ul>
+</div>
 
-<h4>Resume Improvement Suggestions</h4>
-
+<div class="card">
+<h3>📈 Resume Improvement Suggestions</h3>
 <ul>
 ${data["Suggestions"].map(s=>`<li>${s}</li>`).join("")}
 </ul>
+</div>
+
+</div>
 
 `
 
